@@ -12,6 +12,20 @@ from PIL import Image
 
 session = Session.builder.configs(st.secrets["geodemo"]).create()
 
+@st.cache_resource(ttl="2d")
+def get_h3_df(resolution: float) -> pd.DataFrame:
+    return session.sql(f'select h3_latlng_to_cell_string(lat, lon, {h3_resolution}) as h3, count(*) as count\n'\
+                       'from OPENCELLID.PUBLIC.RAW_CELL_TOWERS\n'\
+                        'where mcc between 310 and 316\n'\
+                        'group by 1').to_pandas()
+
+@st.cache_resource(ttl="2d")
+def get_h3_layer(df: pd.DataFrame) -> pdk.Layer:
+    return pdk.Layer("H3HexagonLayer", df, get_hexagon="H3",
+                     get_fill_color="COLOR",
+                     get_line_color="COLOR",
+                     opacity=0.5, extruded=False)
+
 col1, col2 = st.columns(2)
 
 with col1:
@@ -20,10 +34,7 @@ with col1:
 with col2:
     style_option = st.selectbox("Style schema", ("Contrast", "Snowflake"), index=1)
 
-df = session.sql(f'select h3_latlng_to_cell_string(lat, lon, {h3_resolution}) as h3, count(*) as count\n'\
-'from OPENCELLID.PUBLIC.RAW_CELL_TOWERS\n'\
-'where mcc between 310 and 316\n'\
-'group by 1').to_pandas()
+df = get_h3_df(h3_resolution)
 
 if style_option == "Contrast":
     quantiles = df["COUNT"].quantile([0, 0.25, 0.5, 0.75, 1])
@@ -38,7 +49,4 @@ st.pydeck_chart(pdk.Deck(map_provider='carto', map_style='light',
                          initial_view_state=pdk.ViewState(
                              latitude=37.51405689475766,
                              longitude=-96.50284957885742, zoom=3, height=430,),
-                             layers=[pdk.Layer("H3HexagonLayer", df, get_hexagon="H3",
-                                               get_fill_color="COLOR", 
-                                               get_line_color="COLOR",
-                                               opacity=0.5, extruded=False)]))
+                             layers=get_h3_layer(df)))
