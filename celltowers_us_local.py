@@ -8,7 +8,7 @@ import pydeck as pdk
 import branca.colormap as cm
 from PIL import Image
 
-DATA_PATH = "/data/cell_towers.csv"  # uploaded dataset
+DATA_PATH = "data/cell_towers.csv"  # uploaded dataset
 
 @st.cache_data(ttl=60 * 60 * 24 * 2)  # cache for 2 days
 def load_data() -> pd.DataFrame:
