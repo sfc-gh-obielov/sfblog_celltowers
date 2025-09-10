@@ -8,15 +8,6 @@ import pydeck as pdk
 import branca.colormap as cm
 from PIL import Image
 
-# NEW: use h3 locally instead of Snowflake H3 SQL
-try:
-    # h3>=4
-    from h3 import h3
-    _latlng_to_h3 = getattr(h3, "latlng_to_cell", None) or getattr(h3, "geo_to_h3")
-except Exception as e:
-    st.error("The 'h3' package is required. Add 'h3' to requirements.txt.")
-    raise
-
 DATA_PATH = "/data/cell_towers.csv"  # uploaded dataset
 
 @st.cache_data(ttl=60 * 60 * 24 * 2)  # cache for 2 days
