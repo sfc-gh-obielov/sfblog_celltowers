@@ -43,8 +43,6 @@ def get_h3_layer(df: pd.DataFrame) -> pdk.Layer:
         extruded=False
     )
 
-st.title("Cell Towers by H3")
-
 col1, col2 = st.columns(2)
 
 with col1:
