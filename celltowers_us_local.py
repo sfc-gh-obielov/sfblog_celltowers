@@ -15,14 +15,14 @@ def load_data() -> pd.DataFrame:
     df = pd.read_csv(DATA_PATH)
     # normalize common column names just in case
     df = df.rename(columns={c: c.lower() for c in df.columns})
-    # required columns: lat, lon, mcc
-    if not {"lat", "lon", "mcc"}.issubset(df.columns):
-        raise ValueError("CSV must contain columns: lat, lon, mcc")
+    # required columns: lat, lon
+    if not {"lat", "lon"}.issubset(df.columns):
+        raise ValueError("CSV must contain columns: lat, lon")
     return df
 
 @st.cache_data(ttl=60 * 60 * 24 * 2)
 def get_h3_df(resolution: int) -> pd.DataFrame:
-    df = load_data().query("310 <= mcc <= 316").copy()
+    df = load_data().copy()
     # compute H3 index for each point (resolution from the slider)
     df["H3"] = df.apply(lambda r: _latlng_to_h3(float(r["lat"]), float(r["lon"]), int(resolution)), axis=1)
     # aggregate counts per hex
