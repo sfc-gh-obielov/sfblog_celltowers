@@ -2,6 +2,7 @@
 # https://app.snowflake.com/marketplace/listing/GZSVZ8ON6J/dataconsulting-pl-opencellid-open-database-of-cell-towers
 
 import streamlit as st
+import h3
 import pandas as pd
 import pydeck as pdk
 import branca.colormap as cm
